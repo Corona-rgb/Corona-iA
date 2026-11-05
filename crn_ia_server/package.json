@@ -1,0 +1,9 @@
+{
+  "name": "crn-ia-server",
+  "version": "1.0.0",
+  "description": "Servidor-puente de CRN.IA: guarda tu clave de Gemini en el servidor para que los visitantes de la web no tengan que pegar la suya.",
+  "main": "server.js",
+  "engines": { "node": ">=18" },
+  "scripts": { "start": "node server.js" },
+  "dependencies": { "express": "^4.19.2", "cors": "^2.8.5" }
+}

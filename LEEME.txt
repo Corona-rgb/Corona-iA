@@ -1,0 +1,47 @@
+CRN.IA WEB - cómo ponerla en Internet (gratis) y usarla desde Chrome
+=====================================================================
+
+AHORA la web abre directamente al chat, sin pedir ninguna clave al visitante. El panel de
+planes (Free/Pro/Plus) solo aparece cuando alguien agota sus 60 mensajes del día, o si pulsa
+"Ver planes" arriba.
+
+Para que el chat funcione sin pedir clave, hace falta el servidor-puente de la carpeta
+crn_ia_server: guarda TU clave de Gemini ahí, y la web le pregunta a él en vez de a Google
+directamente.
+
+1) SERVIDOR (en tu PC, o en cualquier máquina con Node 18+)
+   - Entra en crn_ia_server, edita INICIAR_SERVIDOR.bat y pon tu clave gratuita de
+     https://aistudio.google.com/apikey en GOOGLE_API_KEY.
+   - Doble clic en INICIAR_SERVIDOR.bat. Debe decir "CRN.IA server escuchando en el puerto 3000".
+   - Doble clic en INICIAR_TUNEL.bat (necesita ngrok: winget install ngrok -s msstore,
+     luego ngrok config add-authtoken TU_TOKEN; crea tu dominio fijo gratis en
+     dashboard.ngrok.com > Domains y ponlo en NGROK_DOMAIN dentro del .bat).
+   - Copia la dirección https que te da el túnel.
+
+2) WEB
+   - Abre index.html y pega esa dirección en PROXY_URL (al principio del <script>).
+   - Sube TODOS los archivos de esta carpeta (menos crn_ia_server) a GitHub Pages, como antes:
+     index.html, app.html, manifest.webmanifest, sw.js, icon.svg, los icon-*.png.
+   - Deja el servidor y el túnel abiertos: si los cierras, la web deja de poder chatear
+     (seguirá abriendo, pero avisará de que no puede conectar).
+
+Límites y seguridad
+   - La web limita a 60 mensajes/día por visitante, pero eso solo vive en su navegador y
+     cualquiera puede saltárselo borrando sus datos. Por eso el servidor PONE SUS PROPIOS
+     límites de verdad: 80 mensajes/día por IP y 2000/día entre todos, configurables con
+     las variables PER_IP_DAILY_LIMIT y GLOBAL_DAILY_LIMIT. Súbelos o bájalos según cuánto
+     quieras gastar de tu cuota de Gemini.
+   - Los contadores del servidor se reinician si lo reinicias (viven en memoria, no en disco).
+     Para una web con más tráfico, conviene guardarlos en un archivo o base de datos.
+
+Licencias Pro / Plus
+   - Siguen siendo las que genera generar_licencias.py de la app de escritorio.
+   - Cuando tengas los enlaces de compra (Stripe/Gumroad), rellena PRO_URL y PLUS_URL
+     dentro de index.html.
+   - La versión web no comprueba claves de licencia: Pro y Plus se activan en la app de
+     escritorio, como ya decidiste. Si más adelante quieres venderlos también desde la web,
+     dímelo y lo añadimos.
+
+Importante
+   - Quien vea el código de la web NO puede ver tu clave de Gemini: ahora vive solo en el
+     servidor, nunca en el navegador. Esa es la mejora clave de este cambio.
