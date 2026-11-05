@@ -1,0 +1,27 @@
+CRN.IA WEB - cómo ponerla en Internet (gratis) y usarla desde Chrome
+=====================================================================
+
+Chrome solo ofrece "Instalar app" cuando la web está en https. Abrir index.html con doble clic
+funciona para probar, pero no se puede instalar. Lo más fácil es GitHub Pages:
+
+1. Crea una cuenta en github.com (gratis) y pulsa "New repository". Ponle de nombre crn-ia, público.
+2. Pulsa "uploading an existing file" y sube TODOS los archivos de esta carpeta
+   (index.html, manifest.webmanifest, sw.js, icon.svg y los 3 icon-*.png). Pulsa "Commit changes".
+3. Ve a Settings > Pages. En "Branch" elige main y la carpeta / (root). Guarda.
+4. En un minuto tendrás tu enlace: https://TU-USUARIO.github.io/crn-ia/
+5. Ábrelo en Chrome. Aparecerá el botón "Instalar como app" en la barra lateral
+   (o el icono de instalar a la derecha de la barra de direcciones).
+
+Primer uso
+- (Si montas el servidor de la carpeta crn_ia_server y pones su dirección en PROXY_URL, los usuarios no necesitan clave.)
+- Abre "Ajustes y claves" y pega tu clave de Google Gemini (gratis en aistudio.google.com).
+- Las claves se guardan solo en tu navegador.
+
+Licencias Pro / Plus
+- Son las mismas claves que genera generar_licencias.py de la app de escritorio.
+- En index.html, LICENSE_SECRET debe ser IGUAL que en CRN_IA.py. Cámbialo en los dos antes de vender.
+- Cuando tengas los enlaces de compra, rellena BUY_URLS en index.html.
+
+Importante
+- En una web el secreto está dentro del código y cualquiera con ganas puede verlo y generar claves.
+  Sirve para empezar; para vender en serio hay que validar las claves en un servidor.
