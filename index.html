@@ -2,689 +2,255 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>CRN.IA</title>
-<meta name="description" content="CRN.IA: tu asistente de IA con Gemini y Claude, directo en el navegador.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRN.IA - Tu asistente de IA en el navegador</title>
+<meta name="description" content="CRN.IA: asistente de IA con Gemini y Claude. Busca en la web, analiza archivos, crea imágenes y se instala como app. Plan Free, Pro y Plus.">
 <meta name="theme-color" content="#0B0D14">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#0B0D14;--panel:#11142A;--panel2:#171A33;--line:#252A4A;--text:#E6E8FF;--muted:#9AA0C8;
-  --accent:#6D4AFF;--accent-soft:#B9ACFF;--user:#7DD3FC;--err:#FF8A8A;--ok:#7DD3FC;--code:#0A0C18;
-}
-*{box-sizing:border-box}
-html,body{height:100%;margin:0}
-body{background:var(--bg);color:var(--text);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;overflow:hidden}
-button,select,input,textarea{font:inherit;color:inherit}
-button{cursor:pointer}
-:focus-visible{outline:2px solid var(--accent-soft);outline-offset:2px}
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-
-/* barra lateral */
-aside{width:260px;flex:none;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:12px;padding:18px 14px;overflow-y:auto}
-.brand{display:flex;align-items:center;justify-content:center;gap:10px;font-weight:700;font-size:22px;letter-spacing:-.01em}
-.brand i{width:28px;height:28px;border-radius:8px;background:var(--accent);display:grid;place-items:center}
-.planbtn{border:1px solid var(--accent);background:transparent;border-radius:10px;padding:9px 10px;text-align:center;font-size:13px;line-height:1.35}
-.planbtn:hover{background:rgba(109,74,255,.15)}
-.btn{border:1px solid var(--line);background:transparent;border-radius:10px;padding:10px 12px;font-weight:500}
-.btn:hover{background:var(--panel2)}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
-.btn.primary:hover{filter:brightness(1.12)}
-label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
-select,input[type=text],input[type=password]{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%}
-.sw{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text);cursor:pointer}
-.sw input{width:18px;height:18px;accent-color:var(--accent)}
-.grow{flex:1}
-.small{font-size:12px;color:var(--muted)}
-
-/* chat */
-main{flex:1;min-width:0;display:flex;flex-direction:column;height:100%}
-.top{display:none;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel)}
-.top .btn{padding:8px 12px}
-#chat{flex:1;overflow-y:auto;padding:24px 20px 8px;scroll-behavior:smooth}
-.wrap{max-width:820px;margin:0 auto}
-.empty{margin:12vh auto 0;max-width:560px;text-align:center;color:var(--muted)}
-.empty h1{color:var(--text);font-size:34px;margin:0 0 10px;letter-spacing:-.02em}
-.msg{margin:0 0 22px}
-.who{font-weight:600;margin-bottom:4px;font-size:14px}
-.who.u{color:var(--user)} .who.a{color:#C4B5FD}
-.body{overflow-wrap:anywhere}
-.body.user{white-space:pre-wrap}
-.body h1,.body h2,.body h3{margin:16px 0 6px;line-height:1.25}
-.body h1{font-size:24px}.body h2{font-size:20px}.body h3{font-size:17px}
-.body p{margin:8px 0}
-.body ul,.body ol{margin:8px 0;padding-left:24px}
-.body code{background:var(--code);border-radius:4px;padding:1px 5px;font:.9em ui-monospace,Consolas,monospace}
-.body pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:12px 14px;overflow-x:auto;margin:10px 0}
-.body pre code{background:none;padding:0}
-.body a{color:var(--accent-soft)}
-.body img{max-width:100%;border-radius:12px;display:block;margin:8px 0}
-.note{color:var(--muted);font-size:14px;font-style:italic}
-.err{color:var(--err)}
-.sources{margin-top:10px;font-size:14px;color:var(--muted)}
-.sources a{color:var(--accent-soft)}
-.dots span{display:inline-block;width:7px;height:7px;margin-right:5px;border-radius:50%;background:#C4B5FD;animation:p 1.2s infinite}
-.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
-@keyframes p{0%,80%,100%{opacity:.25}40%{opacity:1}}
-@media (prefers-reduced-motion:reduce){.dots span{animation:none;opacity:.7}#chat{scroll-behavior:auto}}
-
-/* entrada */
-.composer{padding:10px 20px 18px}
-.box{max-width:820px;margin:0 auto;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
-.box:focus-within{border-color:var(--accent)}
-textarea{background:transparent;border:0;resize:none;outline:0;width:100%;max-height:200px;min-height:26px;line-height:1.5}
-.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:13px;display:inline-flex;align-items:center;gap:6px}
-.chip button{background:none;border:0;padding:0;color:var(--muted);line-height:1}
-.ac{font-size:13px;color:var(--muted);cursor:pointer;background:none;border:0;padding:0;text-align:left}
-.ac b{color:var(--accent-soft);font-weight:500}
-.icon{background:none;border:1px solid var(--line);border-radius:10px;width:40px;height:40px;display:grid;place-items:center}
-.icon:hover{background:var(--bg)}
-.send{margin-left:auto;background:var(--accent);border:0;color:#fff;border-radius:10px;padding:0 18px;height:40px;font-weight:600}
-.send:disabled{opacity:.5;cursor:default}
-
-/* ventanas */
-dialog{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:16px;padding:0;max-width:min(1000px,94vw);width:100%}
-dialog::backdrop{background:rgba(0,0,0,.6)}
-.dlg{padding:22px;display:flex;flex-direction:column;gap:14px;max-height:88vh;overflow-y:auto}
-.dlg h2{margin:0;font-size:22px}
-.cards{display:flex;flex-wrap:wrap;gap:14px}
-.card{flex:1 1 260px;min-width:0;background:var(--panel2);border:2px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:5px}
-.card.cur{border-color:var(--accent)}
-.card h3{margin:0;font-size:24px}
-.price{font-size:32px;font-weight:700}
-.card ul{list-style:none;padding:0;margin:10px 0;display:flex;flex-direction:column;gap:7px;font-size:14px}
-.card li.off{color:#7B849B}
-.card li::before{content:"✓  ";color:var(--ok)}
-.card li.off::before{content:"–  ";color:#7B849B}
-.msgline{min-height:20px;font-size:14px}
-.rowg{display:flex;gap:8px;flex-wrap:wrap}
-.rowg input{flex:1 1 260px;width:auto}
-.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--accent);border-radius:12px;padding:12px 16px;max-width:min(92vw,560px);z-index:5;display:none;gap:12px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.4)}
-.toast.show{display:flex}
-.swatches{display:flex;gap:8px;flex-wrap:wrap}
-.swatches button{width:34px;height:34px;border-radius:50%;border:2px solid transparent}
-.swatches button[aria-pressed=true]{border-color:#fff}
-
-@media (max-width:760px){
-  body{display:block}
-  aside{position:fixed;inset:0 auto 0 0;width:min(86vw,300px);z-index:4;transform:translateX(-100%);transition:transform .2s}
-  aside.open{transform:none;box-shadow:0 0 0 100vmax rgba(0,0,0,.55)}
-  main{height:100dvh}
-  .top{display:flex}
-  .empty h1{font-size:28px}
-}
+body{margin:0;background:#0B0D14}
+a{color:inherit;text-decoration:none}
+.btn:hover{filter:brightness(1.12)}
+a:focus-visible,summary:focus-visible{outline:2px solid #B9ACFF;outline-offset:3px;border-radius:6px}
+summary{list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";float:right;color:#B9ACFF;font-size:24px;line-height:1}
+details[open] summary::after{content:"\2013"}
+.navlink:hover{color:#ECEEF6}
+@keyframes crnpulse{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#C4B5FD;margin-right:5px;animation:crnpulse 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}
+.dot:nth-child(3){animation-delay:.4s}
+@media (prefers-reduced-motion:reduce){.dot{animation:none;opacity:.7}}
+@media (max-width:640px){.mockside{display:none !important}}
 </style>
+
 </head>
 <body>
 
-<aside id="side" aria-label="Menú">
-  <div class="brand"><i aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></i>CRN.IA</div>
-  <button class="planbtn" id="planBtn" type="button"></button>
-  <button class="btn primary" id="newBtn" type="button">Nueva conversación</button>
-  <label class="f">Proveedor
-    <select id="provider"><option value="google">Google Gemini</option><option value="claude">Claude</option></select>
-  </label>
-  <label class="f">Modelo <select id="model"></select></label>
-  <label class="sw"><input type="checkbox" id="web"> Búsqueda web</label>
-  <div class="grow"></div>
-  <button class="btn" id="exportBtn" type="button">Exportar chat</button>
-  <button class="btn" id="settingsBtn" type="button">Ajustes y claves</button>
-  <button class="btn" id="installBtn" type="button" hidden>Instalar como app</button>
-  <div class="small" id="usage"></div>
-</aside>
 
-<main>
-  <div class="top">
-    <button class="btn" id="menuBtn" type="button" aria-label="Abrir menú">Menú</button>
-    <strong>CRN.IA</strong>
-    <button class="btn" id="newBtn2" type="button">Nueva</button>
-  </div>
-  <div id="chat" aria-live="polite"><div class="wrap" id="log"></div></div>
-  <form class="composer" id="form">
-    <div class="box">
-      <div class="chips" id="chips"></div>
-      <textarea id="input" rows="1" placeholder="Escribe un mensaje…  (/imagen un gato astronauta)" aria-label="Mensaje"></textarea>
-      <button type="button" class="ac" id="ac" hidden></button>
-      <div class="row">
-        <button type="button" class="icon" id="attachBtn" aria-label="Adjuntar archivos" title="Adjuntar archivos">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.4 11.1-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"/></svg>
-        </button>
-        <input class="sr" type="file" id="file" multiple accept="image/*,.pdf,.txt,.md,.csv,.json,.py,.js,.ts,.html,.css,.xml,.log,.yml,.yaml">
-        <span class="small" id="hint"></span>
-        <button class="send" id="sendBtn" type="submit">Enviar</button>
+
+<div style="width:100%;background:#0B0D14;color:#A3ABBF;font-family:'Inter',system-ui,sans-serif;font-size:16px;line-height:1.5;overflow-x:hidden">
+
+  <!-- NAV -->
+  <header style="width:100%;max-width:1160px;margin:0 auto;padding:22px 24px;box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px">
+    <a href="#inicio" style="display:flex;align-items:center;gap:10px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;color:#ECEEF6;letter-spacing:-0.01em">
+      <span style="width:30px;height:30px;border-radius:8px;background:#6D4AFF;display:flex;align-items:center;justify-content:center">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      </span>
+      CRN.IA
+    </a>
+    <nav aria-label="Principal" style="display:flex;flex-wrap:wrap;align-items:center;gap:6px 28px;font-size:15px;font-weight:500">
+      <a class="navlink" href="#funciones" style="color:#A3ABBF;padding:10px 0">Funciones</a>
+      <a class="navlink" href="#planes" style="color:#A3ABBF;padding:10px 0">Planes</a>
+      <a class="navlink" href="#faq" style="color:#A3ABBF;padding:10px 0">Preguntas</a>
+      <a class="btn" href="https://corona-rgb.github.io/Corona-iA/" target="_blank" rel="noopener" style="background:#6D4AFF;color:#FFFFFF;padding:11px 20px;border-radius:10px;font-weight:600">Abrir app</a>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <section id="inicio" style="width:100%;max-width:1160px;margin:0 auto;padding:56px 24px 96px;box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;gap:56px">
+    <div style="flex:1 1 440px;min-width:0;display:flex;flex-direction:column;gap:24px">
+      <div style="align-self:flex-start;border:1px solid #2C3350;border-radius:999px;padding:6px 14px;font-size:14px;color:#B9ACFF;font-weight:500">Asistente de IA en tu navegador</div>
+      <h1 style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(40px,6vw,68px);line-height:1.04;letter-spacing:-0.03em;color:#ECEEF6;text-wrap:balance">Tu asistente de IA, directo en <span style="color:#B9ACFF">tu navegador</span></h1>
+      <p style="margin:0;font-size:19px;line-height:1.6;color:#A3ABBF;max-width:540px">CRN.IA habla con Gemini y Claude, busca en la web, crea documentos e imágenes y analiza tus archivos. Todo en una sola ventana, con el diseño que tú elijas.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:4px">
+        <a class="btn" href="https://corona-rgb.github.io/Corona-iA/" target="_blank" rel="noopener" style="background:#6D4AFF;color:#FFFFFF;padding:15px 26px;border-radius:12px;font-weight:600;font-size:17px">Usar gratis en Chrome</a>
+        <a class="btn" href="#planes" style="border:1px solid #333B58;color:#ECEEF6;padding:14px 26px;border-radius:12px;font-weight:600;font-size:17px">Ver planes</a>
+      </div>
+      <p style="margin:0;font-size:14px;color:#8E97AE">Plan Free sin tarjeta · 60 mensajes al día</p>
+    </div>
+
+    <!-- Maqueta de la ventana -->
+    <div role="img" aria-label="Ilustración de la ventana de CRN.IA: una conversación en la que la IA crea una presentación" style="flex:1 1 480px;min-width:0;border:1px solid #232838;border-radius:16px;background:#0B0D17;overflow:hidden;display:flex;box-shadow:0 24px 60px rgba(0,0,0,0.45)">
+      <div class="mockside" style="width:168px;flex:none;background:#11142A;padding:20px 14px;box-sizing:border-box;display:flex;flex-direction:column;gap:10px;color:#E6E8FF;font-size:13px">
+        <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;text-align:center;margin-bottom:2px">CRN.IA</div>
+        <div style="border:1px solid #7C5CFF;border-radius:8px;padding:8px 10px;text-align:center;line-height:1.35;font-size:12px">Plan Free · Mejorar<br>12/60 mensajes hoy</div>
+        <div style="background:#7C5CFF;color:#FFFFFF;border-radius:8px;padding:9px 10px;text-align:center;margin-top:8px">Nueva conversación</div>
+        <div style="border:1px solid #2A2F55;border-radius:8px;padding:9px 10px;text-align:center">Ajustes</div>
+        <div style="border:1px solid #2A2F55;border-radius:8px;padding:9px 10px;text-align:center">Apariencia</div>
+        <div style="margin-top:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:#B7BBE0"><span style="width:26px;height:14px;border-radius:999px;background:#7C5CFF;display:inline-block"></span>Búsqueda web</div>
+      </div>
+      <div style="flex:1 1 auto;min-width:0;background:#171A33;padding:22px 20px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px;font-size:14px;line-height:1.55;color:#E6E8FF">
+        <div><span style="color:#7DD3FC;font-weight:600">Tú: </span>Explícame la fotosíntesis en 3 puntos</div>
+        <div>
+          <span style="color:#C4B5FD;font-weight:600">CRN.IA: </span>
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;margin:6px 0 4px">La fotosíntesis, en breve</div>
+          <div>&nbsp;&nbsp;•&nbsp;&nbsp;Las plantas convierten la luz en energía</div>
+          <div>&nbsp;&nbsp;•&nbsp;&nbsp;Usan agua y CO₂ para producir glucosa</div>
+          <div>&nbsp;&nbsp;•&nbsp;&nbsp;Liberan oxígeno como resultado</div>
+        </div>
+        <div><span style="color:#C4B5FD;font-weight:600">CRN.IA: </span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        <div style="margin-top:auto;background:#1F2342;border-radius:8px;padding:12px 14px;display:flex;align-items:center;font-size:14px"><span>Resume este PDF</span><span style="background:#33407F;border-radius:3px;color:#C9CEF5;margin-left:1px">&nbsp;en cinco puntos clave</span></div>
       </div>
     </div>
-  </form>
-</main>
+  </section>
 
-<div class="toast" id="toast" role="status">
-  <span id="toastText"></span>
-  <button class="btn" type="button" id="toastPlans">Ver planes</button>
-  <button class="btn" type="button" id="toastClose" aria-label="Cerrar">✕</button>
+  <!-- FUNCIONES -->
+  <section id="funciones" style="width:100%;max-width:1160px;margin:0 auto;padding:40px 24px 96px;box-sizing:border-box;display:flex;flex-direction:column;gap:44px">
+    <div style="display:flex;flex-direction:column;gap:14px;max-width:680px">
+      <div style="font-size:14px;font-weight:600;color:#B9ACFF;letter-spacing:0.08em;text-transform:uppercase">Funciones</div>
+      <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(32px,4.4vw,46px);line-height:1.1;letter-spacing:-0.02em;color:#ECEEF6">Mucho más que un chat</h2>
+      <p style="margin:0;font-size:18px;line-height:1.6">Responde en el idioma en que le escribas y trabaja con tus archivos, no solo con texto.</p>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:20px">
+      <div style="flex:1 1 250px;min-width:0;background:#12151F;border:1px solid #232838;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;box-sizing:border-box">
+        <div style="width:44px;height:44px;border-radius:10px;background:#1B1F31;display:flex;align-items:center;justify-content:center;color:#B9ACFF"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div>
+        <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;color:#ECEEF6">Gemini y Claude</h3>
+        <p style="margin:0;font-size:15px;line-height:1.55">Elige proveedor y modelo desde la barra lateral. Si un modelo de Gemini está saturado, CRN.IA prueba otro sin que tengas que hacer nada.</p>
+      </div>
+      <div style="flex:1 1 250px;min-width:0;background:#12151F;border:1px solid #232838;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;box-sizing:border-box">
+        <div style="width:44px;height:44px;border-radius:10px;background:#1B1F31;display:flex;align-items:center;justify-content:center;color:#B9ACFF"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg></div>
+        <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;color:#ECEEF6">Búsqueda web con fuentes</h3>
+        <p style="margin:0;font-size:15px;line-height:1.55">Busca en internet, lee las páginas y te dice de dónde sale cada dato, con los enlaces al final de la respuesta.</p>
+      </div>
+      <div style="flex:1 1 250px;min-width:0;background:#12151F;border:1px solid #232838;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;box-sizing:border-box">
+        <div style="width:44px;height:44px;border-radius:10px;background:#1B1F31;display:flex;align-items:center;justify-content:center;color:#B9ACFF"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path></svg></div>
+        <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;color:#ECEEF6">Crea archivos por ti</h3>
+        <p style="margin:0;font-size:15px;line-height:1.55">Word, Excel, PowerPoint, PDF, código, páginas web y más. Se guardan solos en tu carpeta de Documentos. Disponible en la versión de escritorio.</p>
+      </div>
+      <div style="flex:1 1 250px;min-width:0;background:#12151F;border:1px solid #232838;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;box-sizing:border-box">
+        <div style="width:44px;height:44px;border-radius:10px;background:#1B1F31;display:flex;align-items:center;justify-content:center;color:#B9ACFF"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"></path></svg></div>
+        <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;color:#ECEEF6">Imágenes a partir de texto</h3>
+        <p style="margin:0;font-size:15px;line-height:1.55">Descríbele lo que quieres ver y la imagen aparece en el propio chat, lista para guardar.</p>
+      </div>
+      <div style="flex:1 1 250px;min-width:0;background:#12151F;border:1px solid #232838;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;box-sizing:border-box">
+        <div style="width:44px;height:44px;border-radius:10px;background:#1B1F31;display:flex;align-items:center;justify-content:center;color:#B9ACFF"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.4 11.1-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"></path></svg></div>
+        <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;color:#ECEEF6">Analiza tus archivos</h3>
+        <p style="margin:0;font-size:15px;line-height:1.55">Adjunta imágenes, PDF, documentos, hojas de cálculo, código, modelos 3D o audio (con Gemini) y pregúntale lo que quieras.</p>
+      </div>
+      <div style="flex:1 1 250px;min-width:0;background:#12151F;border:1px solid #232838;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;box-sizing:border-box">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div style="width:44px;height:44px;border-radius:10px;background:#1B1F31;display:flex;align-items:center;justify-content:center;color:#B9ACFF"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"></rect><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"></path></svg></div>
+          <span style="border:1px solid #2C3350;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600;color:#B9ACFF">Pro y Plus</span>
+        </div>
+        <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;color:#ECEEF6">Atajos globales</h3>
+        <p style="margin:0;font-size:15px;line-height:1.55">Una tecla analiza lo que hay en tu pantalla. Otra graba una clase y te la resume (esta, en Plus). Cópiale un texto con Ctrl+C y te lo explica.</p>
+      </div>
+      <div style="flex:1 1 250px;min-width:0;background:#12151F;border:1px solid #232838;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;box-sizing:border-box">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div style="width:44px;height:44px;border-radius:10px;background:#1B1F31;display:flex;align-items:center;justify-content:center;color:#B9ACFF"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 22h-1a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4h1"></path><path d="M7 22h1a4 4 0 0 0 4-4v-1"></path><path d="M7 2h1a4 4 0 0 1 4 4v1"></path></svg></div>
+          <span style="border:1px solid #2C3350;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600;color:#B9ACFF">Pro y Plus</span>
+        </div>
+        <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;color:#ECEEF6">Autoescrito</h3>
+        <p style="margin:0;font-size:15px;line-height:1.55">Mientras escribes, sugiere cómo seguir según tus mensajes anteriores. Pulsa Tab y listo.</p>
+      </div>
+      <div style="flex:1 1 250px;min-width:0;background:#12151F;border:1px solid #232838;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px;box-sizing:border-box">
+        <div style="width:44px;height:44px;border-radius:10px;background:#1B1F31;display:flex;align-items:center;justify-content:center;color:#B9ACFF"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" x2="4" y1="21" y2="14"></line><line x1="4" x2="4" y1="10" y2="3"></line><line x1="12" x2="12" y1="21" y2="12"></line><line x1="12" x2="12" y1="8" y2="3"></line><line x1="20" x2="20" y1="21" y2="16"></line><line x1="20" x2="20" y1="12" y2="3"></line><line x1="2" x2="6" y1="14" y2="14"></line><line x1="10" x2="14" y1="8" y2="8"></line><line x1="18" x2="22" y1="16" y2="16"></line></svg></div>
+        <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;color:#ECEEF6">Tuya, a tu manera</h3>
+        <p style="margin:0;font-size:15px;line-height:1.55">Temas, colores, fuentes, zoom y barra lateral reordenable. La interfaz está en 7 idiomas: español, català, English, français, Deutsch, italiano y português.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CÓMO EMPEZAR -->
+  <section id="como" style="width:100%;background:#0F121B;border-top:1px solid #1C2130;border-bottom:1px solid #1C2130">
+    <div style="width:100%;max-width:1160px;margin:0 auto;padding:88px 24px;box-sizing:border-box;display:flex;flex-direction:column;gap:44px">
+      <div style="display:flex;flex-direction:column;gap:14px;max-width:680px">
+        <div style="font-size:14px;font-weight:600;color:#B9ACFF;letter-spacing:0.08em;text-transform:uppercase">Cómo empezar</div>
+        <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(32px,4.4vw,46px);line-height:1.1;letter-spacing:-0.02em;color:#ECEEF6">Listo en tres pasos</h2>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:20px">
+        <div style="flex:1 1 280px;min-width:0;display:flex;flex-direction:column;gap:12px">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:44px;font-weight:700;color:#B9ACFF;line-height:1">1</div>
+          <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#ECEEF6">Ábrela e instálala</h3>
+          <p style="margin:0;font-size:15px;line-height:1.6">Abre CRN.IA en Chrome. Si quieres, pulsa "Instalar como app" y se abrirá como un programa más, también en el móvil.</p>
+        </div>
+        <div style="flex:1 1 280px;min-width:0;display:flex;flex-direction:column;gap:12px">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:44px;font-weight:700;color:#B9ACFF;line-height:1">2</div>
+          <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#ECEEF6">Pega tu API key</h3>
+          <p style="margin:0;font-size:15px;line-height:1.6">Consigue una clave gratuita de Google Gemini en aistudio.google.com y pégala en Ajustes. La de Claude es opcional.</p>
+        </div>
+        <div style="flex:1 1 280px;min-width:0;display:flex;flex-direction:column;gap:12px">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:44px;font-weight:700;color:#B9ACFF;line-height:1">3</div>
+          <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#ECEEF6">Escribe y listo</h3>
+          <p style="margin:0;font-size:15px;line-height:1.6">Pregunta, adjunta archivos o pide que te cree un documento. Cuando quieras más, activas Pro o Plus con una clave.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLANES -->
+  <section id="planes" style="width:100%;max-width:1160px;margin:0 auto;padding:96px 24px;box-sizing:border-box;display:flex;flex-direction:column;gap:44px">
+    <div style="display:flex;flex-direction:column;gap:14px;max-width:680px">
+      <div style="font-size:14px;font-weight:600;color:#B9ACFF;letter-spacing:0.08em;text-transform:uppercase">Planes</div>
+      <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(32px,4.4vw,46px);line-height:1.1;letter-spacing:-0.02em;color:#ECEEF6">Empieza gratis. Paga una sola vez.</h2>
+      <p style="margin:0;font-size:18px;line-height:1.6">Pro y Plus son de pago único y de por vida, sin suscripciones. Los límites del plan Free se reinician cada día. El editor de archivos, el conversor 3D, los atajos globales y la creación de Word, Excel y PowerPoint son de la versión de escritorio para Windows.</p>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:stretch">
+      <div style="flex:1 1 320px;min-width:0;background:#12151F;border:1px solid #232838;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:6px;box-sizing:border-box">
+<h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;color:#ECEEF6">Free</h3>
+<div style="font-family:'Space Grotesk',sans-serif;font-size:44px;font-weight:700;color:#ECEEF6;line-height:1.15;letter-spacing:-0.02em">Gratis</div>
+<div style="font-size:14px;color:#8E97AE;margin-bottom:18px">Sin tarjeta y sin caducidad</div><a class="btn" href="https://corona-rgb.github.io/Corona-iA/" style="border:1px solid #333B58;color:#ECEEF6;text-align:center;padding:12px 20px;border-radius:10px;font-weight:600;margin-bottom:22px">Usar gratis</a>
+<div style="display:flex;flex-direction:column;gap:11px;border-top:1px solid #232838;padding-top:20px"><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">60 mensajes al día</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">1 archivo por mensaje (hasta 5 MB)</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">3 imágenes al día</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">10 búsquedas web al día</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">5 archivos creados al día</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Historial: últimos 30 mensajes</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Modelos Gemini básicos (Flash-Lite)</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7B849B" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M6 12h12"></path></svg><span style="color:#7B849B">Autoescrito (autocompletar al escribir) <span style="font-size:13px">(no incluido)</span></span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7B849B" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M6 12h12"></path></svg><span style="color:#7B849B">Editor de archivos <span style="font-size:13px">(no incluido)</span></span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7B849B" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M6 12h12"></path></svg><span style="color:#7B849B">Exportar conversaciones <span style="font-size:13px">(no incluido)</span></span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7B849B" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M6 12h12"></path></svg><span style="color:#7B849B">Apariencia completa (colores, fuentes, diseño) <span style="font-size:13px">(no incluido)</span></span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7B849B" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M6 12h12"></path></svg><span style="color:#7B849B">Atajo para analizar la pantalla <span style="font-size:13px">(no incluido)</span></span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7B849B" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M6 12h12"></path></svg><span style="color:#7B849B">Explicar el texto copiado con Ctrl+C <span style="font-size:13px">(no incluido)</span></span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7B849B" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M6 12h12"></path></svg><span style="color:#7B849B">Conversor de modelos 3D <span style="font-size:13px">(no incluido)</span></span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7B849B" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M6 12h12"></path></svg><span style="color:#7B849B">Grabar y resumir clases (audio) <span style="font-size:13px">(no incluido)</span></span></div></div></div>
+<div style="flex:1 1 320px;min-width:0;background:#12151F;border:1px solid #232838;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:6px;box-sizing:border-box">
+<h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;color:#ECEEF6">Pro</h3>
+<div style="font-family:'Space Grotesk',sans-serif;font-size:44px;font-weight:700;color:#ECEEF6;line-height:1.15;letter-spacing:-0.02em">5 €</div>
+<div style="font-size:14px;color:#8E97AE;margin-bottom:18px">Pago único, de por vida</div><a class="btn" href="#" style="background:#6D4AFF;color:#FFFFFF;text-align:center;padding:13px 20px;border-radius:10px;font-weight:600;margin-bottom:22px">Conseguir Pro</a>
+<div style="display:flex;flex-direction:column;gap:11px;border-top:1px solid #232838;padding-top:20px"><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Mensajes ilimitados</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">5 archivos por mensaje (hasta 20 MB)</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">30 imágenes al día</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Búsqueda web ilimitada</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">50 archivos creados al día</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Historial de 500 mensajes</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Todos los Gemini + Claude Sonnet y Haiku</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Autoescrito (autocompletar al escribir)</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Editor de archivos</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Exportar conversaciones</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Apariencia completa (colores, fuentes, diseño)</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Atajo para analizar la pantalla</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Explicar el texto copiado con Ctrl+C</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7B849B" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M6 12h12"></path></svg><span style="color:#7B849B">Conversor de modelos 3D <span style="font-size:13px">(no incluido)</span></span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7B849B" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M6 12h12"></path></svg><span style="color:#7B849B">Grabar y resumir clases (audio) <span style="font-size:13px">(no incluido)</span></span></div></div></div>
+<div style="flex:1 1 320px;min-width:0;background:#12151F;border:1px solid #232838;border-radius:16px;padding:28px;display:flex;flex-direction:column;gap:6px;box-sizing:border-box">
+<h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;color:#ECEEF6">Plus</h3>
+<div style="font-family:'Space Grotesk',sans-serif;font-size:44px;font-weight:700;color:#ECEEF6;line-height:1.15;letter-spacing:-0.02em">25 €</div>
+<div style="font-size:14px;color:#8E97AE;margin-bottom:18px">Pago único, de por vida</div><a class="btn" href="#" style="background:#6D4AFF;color:#FFFFFF;text-align:center;padding:13px 20px;border-radius:10px;font-weight:600;margin-bottom:22px">Conseguir Plus</a>
+<div style="display:flex;flex-direction:column;gap:11px;border-top:1px solid #232838;padding-top:20px"><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Mensajes ilimitados</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">20 archivos por mensaje (hasta 50 MB)</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Imágenes ilimitadas</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Búsqueda web ilimitada</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Creación de archivos ilimitada</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Historial ilimitado</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Todos los modelos, incluido Claude Opus</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Autoescrito (autocompletar al escribir)</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Editor de archivos</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Exportar conversaciones</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Apariencia completa (colores, fuentes, diseño)</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Atajo para analizar la pantalla</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Explicar el texto copiado con Ctrl+C</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Conversor de modelos 3D</span></div><div style="display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7DD3FC" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M20 6 9 17l-5-5"></path></svg><span style="color:#D5DAEA">Grabar y resumir clases (audio)</span></div></div></div>
+
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" style="width:100%;max-width:820px;margin:0 auto;padding:40px 24px 96px;box-sizing:border-box;display:flex;flex-direction:column;gap:32px">
+    <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(32px,4.4vw,46px);line-height:1.1;letter-spacing:-0.02em;color:#ECEEF6">Preguntas frecuentes</h2>
+    <div>
+      <details style="border-top:1px solid #232838;padding:22px 0">
+        <summary style="cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:600;color:#ECEEF6">¿Tengo que pagar la IA aparte?</summary>
+        <p style="margin:14px 0 0;font-size:16px;line-height:1.65">CRN.IA usa tu propia API key. La de Google Gemini tiene nivel gratuito en aistudio.google.com. La de Claude es de pago, la cobra Anthropic y es opcional.</p>
+      </details>
+      <details style="border-top:1px solid #232838;padding:22px 0">
+        <summary style="cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:600;color:#ECEEF6">¿Pro y Plus se pagan una vez?</summary>
+        <p style="margin:14px 0 0;font-size:16px;line-height:1.65">Sí. Pagas una vez y recibes una clave de licencia que activas desde el botón del plan en la barra lateral. No hay cuotas mensuales.</p>
+      </details>
+      <details style="border-top:1px solid #232838;padding:22px 0">
+        <summary style="cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:600;color:#ECEEF6">¿Dónde se guardan mis conversaciones?</summary>
+        <p style="margin:14px 0 0;font-size:16px;line-height:1.65">En tu ordenador, en la carpeta .crn_ia de tu usuario. Ni CRN.IA ni su web las guardan. Eso sí: tus mensajes se envían al proveedor de IA que elijas (Google o Anthropic) para que pueda responder.</p>
+      </details>
+      <details style="border-top:1px solid #232838;padding:22px 0">
+        <summary style="cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:600;color:#ECEEF6">¿Qué pasa cuando llego al límite del plan Free?</summary>
+        <p style="margin:14px 0 0;font-size:16px;line-height:1.65">La app te avisa de qué límite has alcanzado y qué plan lo quita. Los contadores diarios (mensajes, imágenes, búsquedas web y archivos creados) se reinician al día siguiente.</p>
+      </details>
+      <details style="border-top:1px solid #232838;padding:22px 0">
+        <summary style="cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:600;color:#ECEEF6">¿En qué sistema funciona?</summary>
+        <p style="margin:14px 0 0;font-size:16px;line-height:1.65">La versión web funciona en Chrome desde cualquier ordenador o móvil, sin instalar nada. También hay una versión de escritorio para Windows con atajos globales, editor de archivos y conversor 3D.</p>
+      </details>
+      <details style="border-top:1px solid #232838;border-bottom:1px solid #232838;padding:22px 0">
+        <summary style="cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:600;color:#ECEEF6">¿Puedo volver al plan Free?</summary>
+        <p style="margin:14px 0 0;font-size:16px;line-height:1.65">Sí, quitando la licencia desde la ventana de planes. Tu historial y tu configuración se conservan, aunque algunas funciones vuelven a estar limitadas.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- DESCARGA -->
+  <section id="descargar" style="width:100%;max-width:1160px;margin:0 auto;padding:0 24px 96px;box-sizing:border-box">
+    <div style="background:#12151F;border:1px solid #2C3350;border-radius:20px;padding:56px 32px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:20px">
+      <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(32px,4.4vw,46px);line-height:1.1;letter-spacing:-0.02em;color:#ECEEF6;text-wrap:balance">Prueba CRN.IA hoy mismo</h2>
+      <p style="margin:0;font-size:18px;line-height:1.6;max-width:520px">Ábrela en Chrome con el plan Free y empieza a preguntar. Sin tarjeta y sin instalar nada.</p>
+      <a class="btn" href="https://corona-rgb.github.io/Corona-iA/" target="_blank" rel="noopener" style="background:#6D4AFF;color:#FFFFFF;padding:16px 32px;border-radius:12px;font-weight:600;font-size:18px;margin-top:8px">Abrir CRN.IA</a>
+    </div>
+  </section>
+
+  <!-- PIE -->
+  <footer style="width:100%;border-top:1px solid #1C2130">
+    <div style="width:100%;max-width:1160px;margin:0 auto;padding:32px 24px;box-sizing:border-box;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;font-size:14px;color:#8E97AE">
+      <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;color:#ECEEF6">CRN.IA</div>
+      <div>© 2026 CRN.IA · Tu asistente de IA</div>
+    </div>
+  </footer>
+
 </div>
 
-<dialog id="plansDlg"><div class="dlg">
-  <h2>Planes de CRN.IA</h2>
-  <p class="small" style="margin:0">Pro y Plus son de pago único y de por vida. Los límites del plan Free se reinician cada día.</p>
-  <div class="cards" id="cards"></div>
-  <div>
-    <label class="f" for="licKey">Clave de licencia</label>
-    <div class="rowg" style="margin-top:6px">
-      <input type="text" id="licKey" placeholder="Pega aquí tu clave de licencia" autocomplete="off" spellcheck="false">
-      <button class="btn primary" id="licOk" type="button">Activar</button>
-      <button class="btn" id="licDel" type="button" hidden>Quitar licencia</button>
-    </div>
-    <div class="msgline" id="licMsg" role="status"></div>
-  </div>
-  <div class="small" id="usageLong"></div>
-  <div class="rowg"><button class="btn" data-close type="button">Cerrar</button></div>
-</div></dialog>
-
-<dialog id="setDlg"><div class="dlg" style="max-width:560px">
-  <h2>Ajustes y claves</h2>
-  <p class="small" style="margin:0">Las claves se guardan solo en este navegador y se envían únicamente a Google o Anthropic.</p>
-  <p class="small" id="keyNote" style="margin:0"></p>
-  <label class="f">Clave de Google Gemini (gratis en aistudio.google.com)
-    <input type="password" id="kGoogle" autocomplete="off" spellcheck="false"></label>
-  <label class="f">Clave de Claude (de pago, opcional)
-    <input type="password" id="kClaude" autocomplete="off" spellcheck="false"></label>
-  <div>
-    <div class="small" style="margin-bottom:6px">Color de acento <span id="themeLock"></span></div>
-    <div class="swatches" id="swatches"></div>
-  </div>
-  <div class="rowg"><button class="btn primary" id="setOk" type="button">Guardar</button><button class="btn" data-close type="button">Cerrar</button></div>
-</div></dialog>
-
-<script>
-"use strict";
-/* ================= Planes ================= */
-// Mismo secreto que LICENSE_SECRET en CRN_IA.py: las claves de generar_licencias.py valen en los dos sitios.
-const LICENSE_SECRET = "b7e41c9a2f0d58e36a1c94d7f2b80e53";
-const TOKENS = {pro:"PRO", plus:"PLS"};
-const FEATS = {autocomplete:"Autoescrito (autocompletar al escribir)", export:"Exportar conversaciones", themes:"Colores de acento"};
-const PLANS = {
-  free:{name:"Free", price:"Gratis", msgs:60, files:1, mb:5, images:3, web:10, history:30, models:"basic", features:[]},
-  pro:{name:"Pro", price:"5 €", msgs:null, files:5, mb:20, images:30, web:null, history:500, models:"pro", features:["autocomplete","export","themes"]},
-  plus:{name:"Plus", price:"25 €", msgs:null, files:20, mb:50, images:null, web:null, history:null, models:"all", features:["autocomplete","export","themes"]}
-};
-const ORDER = ["free","pro","plus"];
-const BUY_URLS = {pro:"", plus:""};   // enlaces de compra (Gumroad, Lemon Squeezy...)
-// Dirección de tu servidor intermedio (Cloudflare Worker), p. ej. "https://crn-ia.TU-USUARIO.workers.dev".
-// Con él, los usuarios no necesitan clave propia de Gemini y las licencias de Gumroad se validan en el servidor.
-const PROXY_URL = "";
-const MODELS = {
-  google:["gemini-3.8-flash","gemini-3.6-flash","gemini-3.5-flash-lite","gemini-3.1-flash-lite"],
-  claude:["claude-sonnet-5-5","claude-opus-5-5","claude-haiku-5-5"]
-};
-const FREE_G = ["gemini-3.5-flash-lite","gemini-3.1-flash-lite"], PRO_C = ["claude-sonnet-5-5","claude-haiku-5-5"];
-const SYSTEM = "Eres CRN.IA, un asistente de IA amable, claro y directo. Responde en el idioma del usuario. Usa Markdown cuando ayude (listas, código, negrita).";
-const ACCENTS = ["#6D4AFF","#2F6BFF","#0F8F6A","#C2410C","#D946A8"];
-
-function allowed(plan, prov, model){
-  const lv = PLANS[plan].models;
-  if(lv === "all") return true;
-  if(prov === "google") return lv === "pro" ? true : FREE_G.includes(model);
-  return lv === "pro" && PRO_C.includes(model);
-}
-const minPlanModel = (prov, m) => ORDER.find(p => allowed(p, prov, m)) || "plus";
-
-async function licSig(body){
-  const enc = new TextEncoder();
-  const key = await crypto.subtle.importKey("raw", enc.encode(LICENSE_SECRET), {name:"HMAC", hash:"SHA-256"}, false, ["sign"]);
-  const raw = new Uint8Array(await crypto.subtle.sign("HMAC", key, enc.encode(body)));
-  return Array.from(raw, b => b.toString(16).padStart(2,"0")).join("").slice(0,10).toUpperCase();
-}
-async function checkLicense(k){
-  const parts = String(k||"").trim().toUpperCase().split("-");
-  if(parts.length !== 4 || parts[0] !== "CRN") return null;
-  const plan = Object.keys(TOKENS).find(p => TOKENS[p] === parts[1]);
-  if(!plan) return null;
-  return (await licSig(parts[1]+"-"+parts[2])) === parts[3] ? plan : null;
-}
-
-// Devuelve "pro"/"plus" o null. Las claves CRN-... se comprueban aquí; las de Gumroad, en el servidor.
-async function resolvePlan(key){
-  key = String(key || "").trim();
-  if(!key) return null;
-  const local = await checkLicense(key);
-  if(local) return local;
-  if(!PROXY_URL) return null;
-  try{
-    const r = await fetch(PROXY_URL + "/verify", {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({license:key})});
-    const j = await r.json(), p = (j.plan === "pro" || j.plan === "plus") ? j.plan : null;
-    if(p){ try{ localStorage.setItem("crn_licplan", JSON.stringify({key, plan:p})); }catch(e){} }   // solo las válidas
-    return p;
-  }catch(e){   // sin conexión: se usa la última respuesta del servidor
-    try{ const c = JSON.parse(localStorage.getItem("crn_licplan") || "null"); return c && c.key === key ? c.plan : null; }catch(_){ return null; }
-  }
-}
-const usesProxy = () => !!PROXY_URL && !cfg.google;
-
-/* ================= Estado ================= */
-const $ = id => document.getElementById(id);
-const store = {
-  get(k, d){ try{ const v = localStorage.getItem("crn_"+k); return v === null ? d : JSON.parse(v); }catch(e){ return d; } },
-  set(k, v){ try{ localStorage.setItem("crn_"+k, JSON.stringify(v)); }catch(e){} }
-};
-let cfg = Object.assign({provider:"google", models:{google:MODELS.google[2], claude:MODELS.claude[0]}, web:true, google:"", claude:"", license:"", accent:ACCENTS[0]}, store.get("cfg", {}));
-let messages = store.get("messages", []);          // {role, text, shown?, image?, sources?}
-let prompts = store.get("prompts", []);            // para el autoescrito
-let plan = "free", usage = store.get("usage", {}), attachments = [], busy = false, abortCtl = null, suggestion = "";
-
-const today = () => new Date().toISOString().slice(0,10);
-function uget(k){ if(usage.date !== today()) usage = {date:today()}; return usage[k] || 0; }
-function uadd(k, n=1){ uget(k); usage[k] = Math.max(0, (usage[k]||0)+n); store.set("usage", usage); renderPlanBadge(); }
-const limit = k => PLANS[plan][k];
-const has = f => PLANS[plan].features.includes(f);
-const saveCfg = () => store.set("cfg", cfg);
-
-function saveHistory(){
-  const lim = limit("history");
-  if(lim !== null && messages.length > lim){
-    messages = messages.slice(-lim);
-    while(messages.length && messages[0].role !== "user") messages.shift();
-  }
-  // no se guardan los datos de los adjuntos, solo el texto
-  store.set("messages", messages.map(m => ({role:m.role, text:m.text, shown:m.shown, image:m.image, sources:m.sources})));
-}
-
-/* ================= Markdown ================= */
-const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-function inline(t){
-  t = esc(t);
-  const codes = [];
-  t = t.replace(/`([^`\n]+)`/g, (_, c) => { codes.push(c); return "\u0000"+(codes.length-1)+"\u0000"; });
-  t = t.replace(/\*\*([^*\n]+)\*\*/g, "<strong>$1</strong>")
-       .replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, "$1<em>$2</em>")
-       .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-  return t.replace(/\u0000(\d+)\u0000/g, (_, i) => "<code>"+codes[+i]+"</code>");
-}
-function md(src){
-  const lines = String(src).replace(/\r/g,"").split("\n");
-  let out = "", list = null, para = [], code = null;
-  const endPara = () => { if(para.length){ out += "<p>"+para.map(inline).join("<br>")+"</p>"; para = []; } };
-  const endList = () => { if(list){ out += "</"+list+">"; list = null; } };
-  for(const line of lines){
-    if(code !== null){
-      if(/^```/.test(line)){ out += "<pre><code>"+esc(code.join("\n"))+"</code></pre>"; code = null; }
-      else code.push(line);
-      continue;
-    }
-    if(/^```/.test(line)){ endPara(); endList(); code = []; continue; }
-    let m;
-    if((m = line.match(/^(#{1,3})\s+(.*)$/))){ endPara(); endList(); const n = m[1].length; out += `<h${n}>${inline(m[2])}</h${n}>`; continue; }
-    if((m = line.match(/^\s*[-*•]\s+(.*)$/))){ endPara(); if(list !== "ul"){ endList(); out += "<ul>"; list = "ul"; } out += "<li>"+inline(m[1])+"</li>"; continue; }
-    if((m = line.match(/^\s*\d+[.)]\s+(.*)$/))){ endPara(); if(list !== "ol"){ endList(); out += "<ol>"; list = "ol"; } out += "<li>"+inline(m[1])+"</li>"; continue; }
-    if(!line.trim()){ endPara(); endList(); continue; }
-    endList(); para.push(line);
-  }
-  if(code !== null) out += "<pre><code>"+esc(code.join("\n"))+"</code></pre>";
-  endPara(); endList();
-  return out;
-}
-
-/* ================= Pintar ================= */
-function msgEl(m){
-  const d = document.createElement("div"); d.className = "msg";
-  const who = document.createElement("div"); who.className = "who " + (m.role === "user" ? "u" : "a");
-  who.textContent = m.role === "user" ? "Tú" : "CRN.IA";
-  const b = document.createElement("div"); b.className = "body" + (m.role === "user" ? " user" : "");
-  d.append(who, b); fillBody(b, m); return d;
-}
-function fillBody(b, m){
-  if(m.role === "user"){ b.textContent = m.shown ?? m.text; return; }
-  b.innerHTML = m.html ?? md(m.text || "");
-  if(m.image){
-    const img = new Image(); img.alt = m.text || "Imagen creada"; img.referrerPolicy = "no-referrer"; img.src = m.image;
-    img.onerror = () => { img.replaceWith(Object.assign(document.createElement("p"), {className:"err", textContent:"No se pudo crear la imagen. Prueba otra vez en unos segundos."})); };
-    b.appendChild(img);
-  }
-  if(m.sources && m.sources.length){
-    const s = document.createElement("div"); s.className = "sources"; s.append("Fuentes: ");
-    m.sources.slice(0,6).forEach((x, i) => {
-      if(i) s.append(" · ");
-      const a = document.createElement("a"); a.href = x.uri; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = x.title || x.uri; s.appendChild(a);
-    });
-    b.appendChild(s);
-  }
-}
-function render(){
-  const log = $("log"); log.textContent = "";
-  if(!messages.length){
-    log.innerHTML = '<div class="empty"><h1>¿En qué te ayudo?</h1><p>Pregunta lo que quieras, adjunta archivos o escribe <b>/imagen</b> seguido de lo que quieres ver.' + (PROXY_URL ? '' : ' Antes de empezar, pega tu clave de Gemini en <b>Ajustes y claves</b>.') + '</p></div>';
-  } else messages.forEach(m => log.appendChild(msgEl(m)));
-  scrollDown();
-}
-const scrollDown = () => { const c = $("chat"); c.scrollTop = c.scrollHeight; };
-
-function renderPlanBadge(){
-  const lim = limit("msgs");
-  $("planBtn").innerHTML = lim === null
-    ? `Plan ${PLANS[plan].name} ✓<br>Mensajes ilimitados`
-    : `Plan Free · Mejorar<br>${Math.min(uget("msgs"), lim)}/${lim} mensajes hoy`;
-  $("exportBtn").style.opacity = has("export") ? 1 : .6;
-}
-function renderMenus(){
-  $("provider").value = cfg.provider;
-  const sel = $("model"); sel.textContent = "";
-  MODELS[cfg.provider].forEach(m => { const o = new Option(m, m); sel.add(o); });
-  sel.value = cfg.models[cfg.provider];
-  $("web").checked = !!cfg.web;
-}
-function fixForPlan(){
-  if(!MODELS[cfg.provider].some(m => allowed(plan, cfg.provider, m))) cfg.provider = "google";
-  for(const p of Object.keys(MODELS)){
-    if(!allowed(plan, p, cfg.models[p])){ const f = MODELS[p].find(m => allowed(plan, p, m)); if(f) cfg.models[p] = f; }
-  }
-  if(!has("themes")) cfg.accent = ACCENTS[0];
-  applyAccent(); saveCfg();
-}
-function applyAccent(){ document.documentElement.style.setProperty("--accent", cfg.accent); document.querySelector('meta[name=theme-color]').content = "#0B0D14"; }
-
-/* ================= Avisos y planes ================= */
-let toastTimer;
-function upsell(text){
-  $("toastText").textContent = text; $("toast").classList.add("show");
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => $("toast").classList.remove("show"), 12000);
-}
-const need = f => has(f) || (upsell(`«${FEATS[f]}» no está incluido en tu plan ${PLANS[plan].name}. Disponible desde el plan ${PLANS[ORDER.find(p => PLANS[p].features.includes(f))].name}.`), false);
-
-function planRows(p){
-  const d = PLANS[p], r = [];
-  r.push([d.msgs === null ? "Mensajes ilimitados" : `${d.msgs} mensajes al día`, 1]);
-  r.push([`${d.files} archivo(s) por mensaje (hasta ${d.mb} MB)`, 1]);
-  r.push([d.images === null ? "Imágenes ilimitadas" : `${d.images} imágenes al día`, 1]);
-  r.push([d.web === null ? "Búsqueda web ilimitada" : `${d.web} búsquedas web al día`, 1]);
-  r.push([d.history === null ? "Historial ilimitado" : `Historial: últimos ${d.history} mensajes`, 1]);
-  r.push([{basic:"Modelos Gemini básicos (Flash-Lite)", pro:"Todos los Gemini + Claude Sonnet y Haiku", all:"Todos los modelos, incluido Claude Opus"}[d.models], 1]);
-  Object.keys(FEATS).forEach(f => r.push([FEATS[f], d.features.includes(f)]));
-  return r;
-}
-function openPlans(){
-  const cards = $("cards"); cards.textContent = "";
-  ORDER.forEach(p => {
-    const d = PLANS[p], c = document.createElement("div"); c.className = "card" + (p === plan ? " cur" : "");
-    c.innerHTML = `<h3>${d.name}</h3><div class="price">${d.price}</div><div class="small">${p === "free" ? "Sin tarjeta" : "Pago único, de por vida"}</div>`;
-    const ul = document.createElement("ul");
-    planRows(p).forEach(([t, on]) => { const li = document.createElement("li"); if(!on) li.className = "off"; li.textContent = t; ul.appendChild(li); });
-    c.appendChild(ul);
-    const b = document.createElement("button"); b.type = "button"; b.className = "btn" + (ORDER.indexOf(p) > ORDER.indexOf(plan) ? " primary" : "");
-    if(p === plan){ b.textContent = "Plan actual"; b.disabled = true; }
-    else if(ORDER.indexOf(p) < ORDER.indexOf(plan)){ b.textContent = "Incluido en tu plan"; b.disabled = true; }
-    else { b.textContent = "Obtener " + d.name; b.onclick = () => { if(BUY_URLS[p]) window.open(BUY_URLS[p], "_blank", "noopener"); else $("licMsg").textContent = "El enlace de compra todavía no está configurado."; }; }
-    c.appendChild(b); cards.appendChild(c);
-  });
-  $("licKey").value = cfg.license || ""; $("licDel").hidden = plan === "free"; $("licMsg").textContent = "";
-  $("usageLong").textContent = `Hoy: ${uget("msgs")} mensajes · ${uget("images")} imágenes · ${uget("web")} búsquedas web`;
-  $("plansDlg").showModal();
-}
-async function applyLicense(key){
-  cfg.license = key; plan = (await resolvePlan(key)) || "free"; fixForPlan(); renderMenus(); renderPlanBadge(); saveCfg();
-}
-
-/* ================= Adjuntos ================= */
-const TEXT_EXT = /\.(txt|md|csv|json|py|js|ts|html|css|xml|log|ya?ml)$/i;
-function readFile(f, as){ return new Promise((ok, ko) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = ko; as === "text" ? r.readAsText(f) : r.readAsDataURL(f); }); }
-function renderChips(){
-  const c = $("chips"); c.textContent = "";
-  attachments.forEach((f, i) => {
-    const s = document.createElement("span"); s.className = "chip"; s.append(f.name);
-    const x = document.createElement("button"); x.type = "button"; x.textContent = "✕"; x.setAttribute("aria-label", "Quitar " + f.name);
-    x.onclick = () => { attachments.splice(i, 1); renderChips(); }; s.appendChild(x); c.appendChild(s);
-  });
-  $("hint").textContent = `Hasta ${limit("files")} archivo(s) · ${limit("mb")} MB cada uno`;
-}
-function addFiles(list){
-  const max = limit("files");
-  for(const f of list){
-    if(f.size > limit("mb") * 1048576){ upsell(`«${f.name}» pesa más de ${limit("mb")} MB, el máximo de tu plan ${PLANS[plan].name}.`); continue; }
-    if(attachments.length >= max){ upsell(`Tu plan ${PLANS[plan].name} permite ${max} archivo(s) por mensaje. Quita alguno o mejora de plan.`); break; }
-    attachments.push(f);
-  }
-  renderChips();
-}
-
-/* ================= Llamadas a la IA ================= */
-async function* sse(resp){
-  const rd = resp.body.getReader(), dec = new TextDecoder(); let buf = "";
-  for(;;){
-    const {done, value} = await rd.read(); if(done) break;
-    buf += dec.decode(value, {stream:true});
-    let i; while((i = buf.indexOf("\n")) >= 0){
-      const line = buf.slice(0, i).trim(); buf = buf.slice(i+1);
-      if(line.startsWith("data:")){ const d = line.slice(5).trim(); if(d && d !== "[DONE]"){ try{ yield JSON.parse(d); }catch(e){} } }
-    }
-  }
-}
-async function httpError(resp){
-  let msg = ""; try{ const j = await resp.json(); msg = j.error?.message || j.error?.status || JSON.stringify(j).slice(0,200); }catch(e){}
-  const e = new Error(`Error ${resp.status}${msg ? ": " + msg : ""}`); e.status = resp.status; return e;
-}
-function apiHistory(upto){
-  return messages.slice(0, upto).filter(m => !m.image && !m.error).map(m => ({role:m.role, text:m.text, parts:m.parts}));
-}
-async function toParts(files){
-  const parts = [];
-  for(const f of files){
-    if(TEXT_EXT.test(f.name) || f.type.startsWith("text/")){
-      parts.push({text: `\n--- Archivo: ${f.name} ---\n` + (await readFile(f, "text")).slice(0, 200000)});
-    } else if(f.type.startsWith("image/") || f.type === "application/pdf"){
-      const url = await readFile(f, "url"); parts.push({mime:f.type, data:url.split(",")[1], name:f.name});
-    } else parts.push({text:`[Archivo no compatible: ${f.name}]`});
-  }
-  return parts;
-}
-async function* streamGemini(model, hist, useWeb, signal){
-  const contents = hist.map(h => ({role:h.role === "user" ? "user" : "model", parts:[{text:h.text}].concat((h.parts||[]).map(p => p.text ? {text:p.text} : {inlineData:{mimeType:p.mime, data:p.data}}))}));
-  const body = {systemInstruction:{parts:[{text:SYSTEM}]}, contents};
-  if(useWeb) body.tools = [{google_search:{}}];
-  const viaProxy = usesProxy();
-  const resp = await fetch(viaProxy ? `${PROXY_URL}/chat?model=${encodeURIComponent(model)}` : `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`, {
-    method:"POST", signal, body:JSON.stringify(body),
-    headers: viaProxy ? {"content-type":"application/json", "X-License":cfg.license || ""} : {"content-type":"application/json", "x-goog-api-key":cfg.google}});
-  if(!resp.ok) throw await httpError(resp);
-  for await(const ev of sse(resp)){
-    const cand = ev.candidates?.[0]; if(!cand) continue;
-    const t = (cand.content?.parts || []).map(p => p.text || "").join("");
-    const src = (cand.groundingMetadata?.groundingChunks || []).map(c => c.web).filter(Boolean);
-    if(t || src.length) yield {text:t, sources:src};
-  }
-}
-async function* streamClaude(model, hist, useWeb, signal){
-  const msgs = hist.map(h => {
-    const blocks = [];
-    (h.parts||[]).forEach(p => {
-      if(p.text) blocks.push({type:"text", text:p.text});
-      else if(p.mime === "application/pdf") blocks.push({type:"document", source:{type:"base64", media_type:p.mime, data:p.data}});
-      else blocks.push({type:"image", source:{type:"base64", media_type:p.mime, data:p.data}});
-    });
-    blocks.push({type:"text", text:h.text});
-    return {role:h.role, content:blocks};
-  });
-  const body = {model, max_tokens:8192, stream:true, system:SYSTEM, messages:msgs};
-  if(useWeb) body.tools = [{type:"web_search_20250305", name:"web_search", max_uses:3}];
-  const resp = await fetch("https://api.anthropic.com/v1/messages", {
-    method:"POST", signal, headers:{"content-type":"application/json", "x-api-key":cfg.claude, "anthropic-version":"2023-06-01", "anthropic-dangerous-direct-browser-access":"true"}, body:JSON.stringify(body)});
-  if(!resp.ok) throw await httpError(resp);
-  for await(const ev of sse(resp)){
-    if(ev.type === "content_block_delta" && ev.delta?.type === "text_delta") yield {text:ev.delta.text, sources:[]};
-    if(ev.type === "error") throw new Error(ev.error?.message || "Error de Claude");
-  }
-}
-
-/* ================= Enviar ================= */
-async function send(e){
-  e && e.preventDefault();
-  if(busy){ abortCtl && abortCtl.abort(); return; }
-  const input = $("input"); let text = input.value.trim();
-  if(!text && !attachments.length) return;
-  const isImage = /^\/imagen\s+/i.test(text);
-
-  const lim = limit("msgs");
-  if(lim !== null && uget("msgs") >= lim){ upsell(`Has usado los ${lim} mensajes de hoy del plan ${PLANS[plan].name}. Vuelve mañana o pasa a Pro para tener mensajes ilimitados.`); return; }
-  if(isImage){
-    const il = limit("images");
-    if(il !== null && uget("images") >= il){ upsell(`Límite diario de imágenes alcanzado (${il}). Mejora tu plan para crear más.`); return; }
-  } else {
-    if(!allowed(plan, cfg.provider, cfg.models[cfg.provider])){ upsell("Ese modelo no está incluido en tu plan."); return; }
-    if(!cfg[cfg.provider] && !(cfg.provider === "google" && PROXY_URL)){ addMsgError(`Falta la clave de ${cfg.provider === "google" ? "Google Gemini" : "Claude"}. Pégala en «Ajustes y claves».`); $("setDlg").showModal(); return; }
-  }
-
-  // guarda el mensaje para el autoescrito
-  prompts = [text].concat(prompts.filter(p => p !== text)).slice(0, 200); store.set("prompts", prompts);
-  input.value = ""; autosize(); suggest();
-  const files = attachments; attachments = []; renderChips();
-  uadd("msgs");
-
-  const parts = isImage ? [] : await toParts(files);
-  const shown = text + (files.length ? "\n[" + files.map(f => f.name).join(", ") + "]" : "");
-  messages.push({role:"user", text: text || "Analiza los archivos adjuntos.", shown, parts});
-  const myIndex = messages.length;
-  const log = $("log"); if(log.querySelector(".empty")) log.textContent = "";
-  log.appendChild(msgEl(messages[myIndex-1]));
-
-  const m = {role:"assistant", text:""}; const el = msgEl(m); const body = el.querySelector(".body"); log.appendChild(el);
-  body.innerHTML = '<span class="dots"><span></span><span></span><span></span></span>'; scrollDown();
-  busy = true; $("sendBtn").textContent = "Parar"; abortCtl = new AbortController();
-
-  try{
-    if(isImage){
-      const prompt = text.replace(/^\/imagen\s+/i, "").slice(0, 800);
-      uadd("images");
-      m.text = prompt; m.image = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&model=flux&nologo=true&seed=${Date.now()%100000}`;
-      fillBody(body, m);
-    } else {
-      let useWeb = !!cfg.web;
-      const wl = limit("web");
-      if(useWeb && wl !== null && uget("web") >= wl){ useWeb = false; upsell(`Límite diario de búsquedas web alcanzado (${wl}). Respondo sin buscar.`); }
-      if(useWeb) uadd("web");
-      const hist = apiHistory(messages.length);
-      const stream = cfg.provider === "google" ? streamGemini : streamClaude;
-      let tries = cfg.provider === "google" ? [cfg.models.google].concat(MODELS.google.filter(x => x !== cfg.models.google && allowed(plan, "google", x))) : [cfg.models.claude];
-      let lastErr;
-      for(const model of tries){
-        try{
-          m.text = ""; m.sources = [];
-          for await(const ch of stream(model, hist, useWeb, abortCtl.signal)){
-            m.text += ch.text;
-            (ch.sources||[]).forEach(s => { if(!m.sources.some(o => o.uri === s.uri)) m.sources.push(s); });
-            fillBody(body, m); scrollDown();
-          }
-          lastErr = null; break;
-        }catch(err){
-          lastErr = err;
-          if(err.name === "AbortError" || m.text || ![429,500,503].includes(err.status)) break;   // solo se cambia de modelo si no ha llegado nada
-        }
-      }
-      if(lastErr) throw lastErr;
-      if(!m.text) m.text = "(Sin respuesta)";
-      fillBody(body, m);
-    }
-    messages.push(m);
-  }catch(err){
-    if(err.name === "AbortError"){ if(m.text){ messages.push(m); } else { el.remove(); } }
-    else {
-      uadd("msgs", -1);   // si falla, no se gasta cupo
-      messages.pop();     // se quita el mensaje del usuario para que la conversación siga siendo válida
-      el.previousElementSibling?.remove(); el.remove();
-      addMsgError(err.message || String(err));
-      input.value = text; autosize();
-    }
-  }finally{
-    busy = false; abortCtl = null; $("sendBtn").textContent = "Enviar"; saveHistory(); renderPlanBadge();
-  }
-}
-function addMsgError(t){
-  const log = $("log"); if(log.querySelector(".empty")) log.textContent = "";
-  const d = document.createElement("div"); d.className = "msg"; d.innerHTML = '<div class="who a">CRN.IA</div>'; const b = document.createElement("div"); b.className = "body err"; b.textContent = t; d.appendChild(b); log.appendChild(d); scrollDown();
-}
-
-/* ================= Autoescrito (Pro/Plus) ================= */
-function suggest(){
-  const v = $("input").value, ac = $("ac"); suggestion = "";
-  if(has("autocomplete") && v.length >= 3 && !v.startsWith("/")){
-    const hit = prompts.find(p => p.length > v.length && p.toLowerCase().startsWith(v.toLowerCase()));
-    if(hit) suggestion = v + hit.slice(v.length);
-  }
-  ac.hidden = !suggestion; if(suggestion) ac.innerHTML = "Tab para completar: " + esc(v) + "<b>" + esc(suggestion.slice(v.length)) + "</b>";
-}
-function autosize(){ const t = $("input"); t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight, 200) + "px"; }
-
-/* ================= Exportar ================= */
-function exportChat(){
-  if(!need("export") || !messages.length) return;
-  const md = messages.map(m => `## ${m.role === "user" ? "Tú" : "CRN.IA"}\n\n${m.shown ?? m.text}\n`).join("\n");
-  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([md], {type:"text/markdown"}));
-  a.download = "conversacion_" + new Date().toISOString().slice(0,16).replace(/[-:T]/g, "") + ".md"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-}
-
-/* ================= Eventos ================= */
-$("form").addEventListener("submit", send);
-$("input").addEventListener("input", () => { autosize(); suggest(); });
-$("input").addEventListener("keydown", e => {
-  if(e.key === "Tab" && suggestion){ e.preventDefault(); $("input").value = suggestion; autosize(); suggest(); }
-  else if(e.key === "Escape" && suggestion){ suggestion = ""; $("ac").hidden = true; }
-  else if(e.key === "Enter" && !e.shiftKey && !e.isComposing){ e.preventDefault(); send(); }
-});
-$("ac").onclick = () => { $("input").value = suggestion; autosize(); suggest(); $("input").focus(); };
-$("attachBtn").onclick = () => $("file").click();
-$("file").onchange = e => { addFiles([...e.target.files]); e.target.value = ""; };
-$("input").addEventListener("paste", e => { const fs = [...(e.clipboardData?.files || [])]; if(fs.length){ e.preventDefault(); addFiles(fs); } });
-const newChat = () => { if(busy) return; messages = []; saveHistory(); render(); $("side").classList.remove("open"); $("input").focus(); };
-$("newBtn").onclick = newChat; $("newBtn2").onclick = newChat;
-$("menuBtn").onclick = () => $("side").classList.toggle("open");
-$("chat").addEventListener("click", () => $("side").classList.remove("open"));
-$("planBtn").onclick = () => { $("side").classList.remove("open"); openPlans(); };
-$("toastPlans").onclick = () => { $("toast").classList.remove("show"); openPlans(); };
-$("toastClose").onclick = () => $("toast").classList.remove("show");
-$("exportBtn").onclick = exportChat;
-$("provider").onchange = e => {
-  const p = e.target.value;
-  if(!MODELS[p].some(m => allowed(plan, p, m))){ upsell(`Ese proveedor no está incluido en tu plan ${PLANS[plan].name}. Disponible desde el plan Pro.`); renderMenus(); return; }
-  cfg.provider = p; if(!allowed(plan, p, cfg.models[p])) cfg.models[p] = MODELS[p].find(m => allowed(plan, p, m)); saveCfg(); renderMenus();
-};
-$("model").onchange = e => {
-  const m = e.target.value;
-  if(!allowed(plan, cfg.provider, m)){ upsell(`Ese modelo no está incluido en tu plan ${PLANS[plan].name}. Disponible desde el plan ${PLANS[minPlanModel(cfg.provider, m)].name}.`); renderMenus(); return; }
-  cfg.models[cfg.provider] = m; saveCfg();
-};
-$("web").onchange = e => { cfg.web = e.target.checked; saveCfg(); };
-$("licOk").onclick = async () => {
-  const k = $("licKey").value.trim().toUpperCase(); $("licMsg").className = "msgline"; $("licMsg").textContent = "Comprobando…";
-  const p = await resolvePlan(k);
-  if(!p){ $("licMsg").textContent = "Clave no válida."; $("licMsg").className = "msgline err"; return; }
-  await applyLicense(k); $("licMsg").className = "msgline"; $("licMsg").textContent = `¡Licencia activada! Plan ${PLANS[p].name}.`; openPlansRefresh();
-};
-$("licDel").onclick = async () => { await applyLicense(""); $("licMsg").className = "msgline"; $("licMsg").textContent = "Licencia quitada. Vuelves al plan Free."; openPlansRefresh(); };
-function openPlansRefresh(){ const msg = $("licMsg").textContent, cls = $("licMsg").className; $("plansDlg").close(); openPlans(); $("licMsg").textContent = msg; $("licMsg").className = cls; }
-document.querySelectorAll("[data-close]").forEach(b => b.onclick = () => b.closest("dialog").close());
-$("settingsBtn").onclick = () => {
-  $("side").classList.remove("open"); $("kGoogle").value = cfg.google; $("kClaude").value = cfg.claude;
-  $("keyNote").textContent = PROXY_URL ? "No necesitas ninguna clave para usar Gemini: CRN.IA lo pone por ti con los límites de tu plan. Si prefieres usar la tuya, pégala aquí (sin límites del servicio). Claude sí necesita tu clave." : "Para usar la IA, pega tu clave de Gemini.";
-  $("themeLock").textContent = has("themes") ? "" : "(Pro y Plus)";
-  const sw = $("swatches"); sw.textContent = "";
-  ACCENTS.forEach(c => { const b = document.createElement("button"); b.type = "button"; b.style.background = c; b.setAttribute("aria-label", "Color " + c); b.setAttribute("aria-pressed", String(cfg.accent === c));
-    b.onclick = () => { if(!need("themes")) return; cfg.accent = c; saveCfg(); applyAccent(); sw.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); }; sw.appendChild(b); });
-  $("setDlg").showModal();
-};
-$("setOk").onclick = () => { cfg.google = $("kGoogle").value.trim(); cfg.claude = $("kClaude").value.trim(); saveCfg(); $("setDlg").close(); };
-
-/* Instalar como app */
-let deferred;
-window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferred = e; $("installBtn").hidden = false; });
-$("installBtn").onclick = async () => { if(!deferred) return; deferred.prompt(); await deferred.userChoice; deferred = null; $("installBtn").hidden = true; };
-window.addEventListener("appinstalled", () => { $("installBtn").hidden = true; });
-if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {});
-
-/* ================= Arranque ================= */
-(async function init(){
-  plan = (await resolvePlan(cfg.license)) || "free";
-  fixForPlan(); renderMenus(); renderPlanBadge(); renderChips(); render(); autosize();
-})();
-</script>
 </body>
 </html>
