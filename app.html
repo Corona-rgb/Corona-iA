@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRN.IA en el navegador</title>
+<style>
+:root{--bg:#fff;--side:#f4f4f6;--fg:#1a1a1a;--bd:#d8d8de;--ac:#6b3fd4;--me:#e9e2fb;--bot:#f4f4f6}
+@media (prefers-color-scheme:dark){:root{--bg:#0e0e11;--side:#16161b;--fg:#f0f0f2;--bd:#2c2c34;--me:#2b1f4d;--bot:#1b1b21}}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--fg);display:flex;flex-direction:column}
+header{display:flex;gap:8px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--bd);background:var(--side);flex-wrap:wrap}
+header h1{font-size:18px;margin:0 auto 0 0}
+button,input,textarea{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:7px 10px}
+button{cursor:pointer}button.pri{background:var(--ac);color:#fff;border-color:var(--ac)}button:disabled{opacity:.5}
+a{color:var(--ac)}
+#chat{flex:1;overflow-y:auto;padding:16px;max-width:860px;width:100%;margin:0 auto}
+.m{padding:10px 14px;border-radius:12px;margin:8px 0;line-height:1.5;overflow-wrap:anywhere}
+.u{background:var(--me);margin-left:15%}.b{background:var(--bot)}.n{font-size:13px;opacity:.75}
+pre{background:#000a;color:#eee;padding:10px;border-radius:8px;overflow-x:auto}code{font-family:Consolas,monospace}
+footer{border-top:1px solid var(--bd);padding:10px;background:var(--side)}
+.row{display:flex;gap:8px;max-width:860px;margin:0 auto}textarea{flex:1;resize:none;height:56px}
+#files{max-width:860px;margin:0 auto 6px;font-size:13px;opacity:.8}
+#setup{max-width:560px;margin:40px auto;padding:0 16px}#setup input{width:100%;margin:10px 0}
+.hide{display:none!important}
+</style></head><body>
+<header><h1>CRN.IA</h1><span id="cnt" class="n"></span>
+<button id="new">Nueva conversación</button><button id="chg">Cambiar clave</button><a href="index.html">Inicio</a></header>
+<div id="setup" class="hide">
+<h2>Antes de empezar</h2>
+<p>Esta versión usa tu propia clave gratuita de Google Gemini. Se crea en un minuto en
+<a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>.
+La clave se guarda solo en este navegador y se envía únicamente a Google.</p>
+<input id="k" type="password" placeholder="Pega aquí tu clave de Gemini" autocomplete="off">
+<button class="pri" id="ks">Guardar y empezar</button>
+</div>
+<div id="chat"></div>
+<footer id="foot"><div id="files"></div>
+<div class="row"><button id="att" title="Adjuntar">Adjuntar</button>
+<textarea id="in" placeholder="Escribe tu mensaje (Enter envía, Shift+Enter salto de línea)"></textarea>
+<button class="pri" id="send">Enviar</button></div>
+<input type="file" id="fi" multiple class="hide">
+<p class="n" style="text-align:center;margin:8px 0 0">Versión web gratuita (plan Free). Pro y Plus están en la app de escritorio.</p></footer>
+<script>
+const $=id=>document.getElementById(id);
+// Dirección de tu servidor intermedio (worker.js). Con ella la página reparte entre varias IA y no pide clave.
+const PROXY_URL="";
+const MODELS=["gemini-3.5-flash-lite","gemini-3.1-flash-lite"],LIMIT=60,KEEP=200,MAXF=5,MAXMB=15,MAXTOTAL=18;
+const TEXTEXT=/\.(txt|md|csv|json|js|ts|py|html|css|xml|yml|yaml|log|ini|lua|java|c|cpp|cs|sql)$/i;
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let key=PROXY_URL?"proxy":ls.get("crn_key",""),msgs=ls.get("crn_msgs",[]),files=[],busy=false;
+const today=()=>new Date().toISOString().slice(0,10);
+const used=()=>{const u=ls.get("crn_use",{});return u.d===today()?u.n:0};
+const counter=()=>{$("cnt").textContent="Hoy: "+used()+" / "+LIMIT+" mensajes"};
+const esc=s=>s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+function md(t){return esc(t).split("```").map((p,i)=>i%2?"<pre><code>"+p.replace(/^\w*\n/,"")+"</code></pre>"
+:p.replace(/`([^`\n]+)`/g,"<code>$1</code>").replace(/\*\*([^*\n]+)\*\*/g,"<b>$1</b>").replace(/\n/g,"<br>")).join("")}
+function add(role,text){const d=document.createElement("div");d.className="m "+role;
+d.innerHTML=role==="u"?esc(text).replace(/\n/g,"<br>"):md(text);$("chat").appendChild(d);scroll();return d}
+const scroll=()=>{$("chat").scrollTop=$("chat").scrollHeight};
+const note=t=>{const d=add("n",t);d.className="m n";return d};
+function view(){const ok=!!key;$("chg").classList.toggle("hide",!!PROXY_URL);$("setup").classList.toggle("hide",ok);$("chat").classList.toggle("hide",!ok);$("foot").classList.toggle("hide",!ok)}
+function showFiles(){$("files").textContent=files.length?"Adjuntos: "+files.map(f=>f.name).join(", "):""}
+$("ks").onclick=()=>{const v=$("k").value.trim();if(v.length<20)return;key=v;ls.set("crn_key",v);$("k").value="";view()};
+$("chg").onclick=()=>{key="";ls.set("crn_key","");view()};
+$("new").onclick=()=>{if(busy)return;msgs=[];ls.set("crn_msgs",msgs);$("chat").innerHTML=""};
+$("att").onclick=()=>$("fi").click();
+$("fi").onchange=async e=>{for(const f of e.target.files){
+ const total=files.reduce((s,x)=>s+x.size,0)+f.size;
+ if(files.length>=MAXF){note("Máximo "+MAXF+" archivos por mensaje en la versión web.");break}
+ if(f.size>MAXMB*1048576||total>MAXTOTAL*1048576){note(f.name+" es demasiado grande.");continue}
+ const isText=f.type.startsWith("text/")||TEXTEXT.test(f.name);
+ const ok=isText||/^(image\/|audio\/|application\/pdf)/.test(f.type);
+ if(!ok){note(f.name+": formato no admitido en la web (usa la app de escritorio).");continue}
+ if(isText)files.push({name:f.name,size:f.size,text:(await f.text()).slice(0,100000)});
+ else files.push({name:f.name,size:f.size,type:f.type,b64:await new Promise(r=>{const x=new FileReader();x.onload=()=>r(x.result.split(",")[1]);x.readAsDataURL(f)})});
+}e.target.value="";showFiles()};
+$("in").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
+$("send").onclick=send;
+const pull=j=>PROXY_URL?(j.t||""):((j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[]).map(p=>p.text||"").join("");
+async function send(){
+ if(busy)return;const text=$("in").value.trim();if(!text&&!files.length)return;
+ if(used()>=LIMIT){note("Has usado tus "+LIMIT+" mensajes de hoy. Se reinician mañana. Con Pro y Plus (app de escritorio) no hay límite.");return}
+ busy=true;$("send").disabled=true;
+ const ftxt=files.filter(f=>f.text!=null).map(f=>"[Archivo: "+f.name+"]\n"+f.text).join("\n\n");
+ const media=files.filter(f=>f.text==null).map(f=>({type:f.type,b64:f.b64}));
+ const ask=(ftxt?ftxt+"\n\n":"")+(text||"Analiza el archivo adjunto.");
+ const shown=text+(files.length?"\n[Adjuntos: "+files.map(f=>f.name).join(", ")+"]":"");
+ files=[];showFiles();$("in").value="";add("u",shown);const el=add("b","…");
+ const sys="Eres CRN.IA, un asistente de IA con tono cercano, directo y sin relleno. Responde en el idioma del usuario. Si no sabes algo, dilo en lugar de inventarlo. Hoy es "+today()+".";
+ let out="",ok=false;
+ const tries=PROXY_URL?[null]:MODELS;
+ for(const model of tries){
+  const last=model===tries[tries.length-1];
+  try{
+   let res;
+   if(PROXY_URL){
+    const m=msgs.map(x=>({role:x.r==="u"?"user":"assistant",text:x.t}));m.push({role:"user",text:ask,files:media});
+    res=await fetch(PROXY_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({system:sys,messages:m})});
+   }else{
+    const hist=msgs.map(x=>({role:x.r==="u"?"user":"model",parts:[{text:x.t}]}));
+    hist.push({role:"user",parts:[...media.map(f=>({inlineData:{mimeType:f.type,data:f.b64}})),{text:ask}]});
+    res=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+model+":streamGenerateContent?alt=sse",
+     {method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key},
+      body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:hist})});
+   }
+   if(!res.ok){const e=await res.text();if(!PROXY_URL&&!last&&[400,404,429,503].includes(res.status)&&!/API key/i.test(e))continue;throw new Error(PROXY_URL?e.slice(0,200):res.status+" "+e.slice(0,200))}
+   const rd=res.body.getReader(),dec=new TextDecoder();let buf="";
+   for(;;){const {done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});let i;
+    while((i=buf.indexOf("\n"))>=0){const ln=buf.slice(0,i).trim();buf=buf.slice(i+1);if(!ln.startsWith("data:"))continue;
+     try{const t=pull(JSON.parse(ln.slice(5)));if(t){out+=t;el.innerHTML=md(out);scroll()}}catch(x){}}}
+   ok=true;break;
+  }catch(e){if(last){el.className="m n";el.textContent=/API key/i.test(e.message)?"La clave no es válida. Pulsa «Cambiar clave».":(PROXY_URL?e.message:"Error: "+e.message)}}
+ }
+ if(ok&&out){msgs.push({r:"u",t:shown},{r:"m",t:out});msgs=msgs.slice(-KEEP);while(msgs.length&&msgs[0].r!=="u")msgs.shift();
+  ls.set("crn_msgs",msgs);ls.set("crn_use",{d:today(),n:used()+1});counter()}
+ else if(ok){el.className="m n";el.textContent="(sin respuesta)"}
+ busy=false;$("send").disabled=false;
+}
+msgs.forEach(m=>add(m.r==="u"?"u":"b",m.t));counter();view();
+</script></body></html>
